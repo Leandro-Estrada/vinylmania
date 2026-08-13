@@ -1,0 +1,22 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { getCollection } from 'astro:content';
+
+const entries = await getCollection('nosotros');
+const info = entries[0]?.data;
+---
+<Layout title="Nosotros">
+  <section class="section">
+    <p class="section-eyebrow">Quiénes somos</p>
+    <h1 class="section-title">{info?.titulo ?? 'Nosotros'}</h1>
+    <p style="color: var(--text-muted); max-width: 640px; margin-bottom: 32px;">{info?.texto}</p>
+
+    {info?.imagenes && info.imagenes.length > 0 && (
+      <div class="photo-grid">
+        {info.imagenes.map((img) => (
+          <figure><img src={img} alt="Taller Vinylmania" loading="lazy" /></figure>
+        ))}
+      </div>
+    )}
+  </section>
+</Layout>

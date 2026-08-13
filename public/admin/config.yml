@@ -1,0 +1,70 @@
+backend:
+  name: git-gateway
+  branch: main
+
+media_folder: "public/images/uploads"
+public_folder: "/images/uploads"
+
+locale: "es"
+
+collections:
+  - name: "productos"
+    label: "Productos"
+    folder: "src/content/productos"
+    create: true
+    delete: true
+    extension: "json"
+    format: "json"
+    identifier_field: "titulo"
+    fields:
+      - label: "Categoría"
+        name: "categoria"
+        widget: "select"
+        options:
+          - { label: "Pastilla", value: "pastilla" }
+          - { label: "Corpórea", value: "corporea" }
+          - { label: "Lona", value: "lona" }
+          - { label: "Calcomanías", value: "calcomanias" }
+          - { label: "Gorras", value: "gorras" }
+          - { label: "Llaveros", value: "llaveros" }
+          - { label: "Remeras", value: "remeras" }
+      - { label: "Título / nombre del producto", name: "titulo", widget: "string" }
+      - { label: "Imagen", name: "imagen", widget: "image" }
+      - { label: "Medida (solo pastilla)", name: "medida", widget: "string", required: false }
+      - { label: "Bifaz (solo pastilla)", name: "bifaz", widget: "boolean", required: false, default: true }
+      - { label: "Luminoso (solo pastilla)", name: "luminoso", widget: "boolean", required: false, default: true }
+      - { label: "Material (solo corpórea)", name: "material", widget: "select", options: ["acrilico", "chapa", "polifan"], required: false }
+      - { label: "Iluminación (solo corpórea)", name: "iluminacion", widget: "select", options: ["con-luz", "sin-luz"], required: false }
+      - { label: "Tipo de luz (solo corpórea con luz)", name: "tipoLuz", widget: "select", options: ["retroiluminado", "frontal"], required: false }
+      - label: "Tipo de lona (solo lona)"
+        name: "tipoLona"
+        widget: "select"
+        required: false
+        options:
+          - { label: "Frontlight", value: "front" }
+          - { label: "Backlight", value: "back" }
+      - { label: "Variante (solo merchandising: calcomanías, gorras, llaveros, remeras)", name: "variante", widget: "string", required: false, hint: "Ej: DTF full color, sublimada, vinilo" }
+
+  - name: "proyectos"
+    label: "Proyectos"
+    folder: "src/content/proyectos"
+    create: true
+    delete: true
+    extension: "json"
+    format: "json"
+    identifier_field: "descripcion"
+    fields:
+      - { label: "Imagen", name: "imagen", widget: "image" }
+      - { label: "Descripción (opcional)", name: "descripcion", widget: "string", required: false }
+      - { label: "Fecha", name: "fecha", widget: "datetime", required: false, format: "YYYY-MM-DD" }
+
+  - name: "nosotros"
+    label: "Nosotros"
+    files:
+      - name: "nosotros"
+        label: "Página Nosotros"
+        file: "src/content/nosotros/nosotros.json"
+        fields:
+          - { label: "Título", name: "titulo", widget: "string" }
+          - { label: "Texto", name: "texto", widget: "text" }
+          - { label: "Fotos del taller", name: "imagenes", widget: "list", field: { label: "Imagen", name: "imagen", widget: "image" }, required: false }

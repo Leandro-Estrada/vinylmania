@@ -1,0 +1,56 @@
+---
+interface Props {
+  title: string;
+  description?: string;
+}
+const { title, description = 'Cartelería a medida: pastilla, corpórea y lona.' } = Astro.props;
+const WHATSAPP_NUMBER = '5493436222000'; // TODO: reemplazar por el número real
+---
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={description} />
+    <title>{title} | Vinylmania</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="stylesheet" href="/styles/global.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <a href="/" class="brand">
+        <span class="brand-mark" aria-hidden="true">☠</span>
+        <span class="brand-name">Vinylmania</span>
+      </a>
+      <nav class="main-nav" aria-label="Navegación principal">
+        <a href="/">Home</a>
+        <a href="/productos">Productos</a>
+        <a href="/proyectos">Proyectos</a>
+        <a href="/nosotros">Nosotros</a>
+        <a href="/contacto">Contacto</a>
+      </nav>
+    </header>
+
+    <main>
+      <slot />
+    </main>
+
+    <footer class="site-footer">
+      <p>Vinylmania · Cartelería a medida</p>
+      <div class="footer-links">
+        <a href="https://www.instagram.com/vinyl.mania/" target="_blank" rel="noopener">Instagram</a>
+        <a href={`https://wa.me/${WHATSAPP_NUMBER}`} target="_blank" rel="noopener">WhatsApp</a>
+      </div>
+    </footer>
+
+    <a
+      class="wa-float"
+      href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent('Hola, quiero consultar por un cartel.')}`}
+      target="_blank"
+      rel="noopener"
+      aria-label="Consultar por WhatsApp"
+    >
+      WhatsApp
+    </a>
+  </body>
+</html>

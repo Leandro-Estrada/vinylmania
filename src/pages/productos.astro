@@ -1,0 +1,175 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { getCollection } from 'astro:content';
+
+const items = await getCollection('productos');
+const data = items.map((i) => i.data);
+
+const CATEGORIES = [
+  { value: 'pastilla', label: 'Pastilla', group: 'carteleria' },
+  { value: 'corporea', label: 'Corpórea', group: 'carteleria' },
+  { value: 'lona', label: 'Lona', group: 'carteleria' },
+  { value: 'calcomanias', label: 'Calcomanías', group: 'merch' },
+  { value: 'gorras', label: 'Gorras', group: 'merch' },
+  { value: 'llaveros', label: 'Llaveros', group: 'merch' },
+  { value: 'remeras', label: 'Remeras', group: 'merch' },
+];
+---
+<Layout title="Productos">
+  <section class="section">
+    <p class="section-eyebrow">Catálogo</p>
+    <h1 class="section-title">Productos</h1>
+
+    <p class="group-label">Cartelería</p>
+    <div class="tabs" role="tablist" id="tabs-carteleria">
+      {CATEGORIES.filter((c) => c.group === 'carteleria').map((c) => (
+        <button class="tab" role="tab" data-cat={c.value}>{c.label}</button>
+      ))}
+    </div>
+
+    <p class="group-label">Merchandising</p>
+    <div class="tabs" role="tablist" id="tabs-merch">
+      {CATEGORIES.filter((c) => c.group === 'merch').map((c) => (
+        <button class="tab" role="tab" data-cat={c.value}>{c.label}</button>
+      ))}
+    </div>
+
+    <div class="filters" id="filters"></div>
+
+    <div class="photo-grid" id="grid"></div>
+    <p class="empty-state" id="empty" hidden>No hay productos que coincidan con estos filtros.</p>
+  </section>
+</Layout>
+
+<script define:vars={{ data }}>
+  const state = { cat: 'pastilla', material: null, iluminacion: null, tipoLuz: null, tipoLona: null };
+
+  const allTabs = document.querySelectorAll('.tab');
+  const filtersEl = document.getElementById('filters');
+  const gridEl = document.getElementById('grid');
+  const emptyEl = document.getElementById('empty');
+
+  const params = new URLSearchParams(window.location.search);
+  const initialCat = params.get('cat');
+  const validCats = Array.from(allTabs).map((t) => t.dataset.cat);
+  if (initialCat && validCats.includes(initialCat)) {
+    state.cat = initialCat;
+  }
+
+  function resetVariantFilters() {
+    state.material = null;
+    state.iluminacion = null;
+    state.tipoLuz = null;
+    state.tipoLona = null;
+  }
+
+  function buildRow(label, key, options) {
+    const row = document.createElement('div');
+    row.className = 'filter-row';
+    const labelEl = document.createElement('span');
+    labelEl.className = 'label';
+    labelEl.textContent = label;
+    row.appendChild(labelEl);
+
+    const pillsWrap = document.createElement('div');
+    pillsWrap.className = 'filter-pills';
+
+    options.forEach(([value, text]) => {
+      const pill = document.createElement('button');
+      pill.className = 'pill';
+      pill.type = 'button';
+      pill.textContent = text;
+      pill.setAttribute('aria-pressed', state[key] === value ? 'true' : 'false');
+      pill.addEventListener('click', () => {
+        state[key] = state[key] === value ? null : value;
+        renderFilters();
+        renderGrid();
+      });
+      pillsWrap.appendChild(pill);
+    });
+
+    row.appendChild(pillsWrap);
+    return row;
+  }
+
+  function renderFilters() {
+    filtersEl.innerHTML = '';
+
+    if (state.cat === 'corporea') {
+      filtersEl.appendChild(buildRow('Material', 'material', [
+        ['acrilico', 'Acrílico'], ['chapa', 'Chapa'], ['polifan', 'Polifan'],
+      ]));
+      filtersEl.appendChild(buildRow('Iluminación', 'iluminacion', [
+        ['con-luz', 'Con luz'], ['sin-luz', 'Sin luz'],
+      ]));
+      filtersEl.appendChild(buildRow('Tipo de luz', 'tipoLuz', [
+        ['retroiluminado', 'Retroiluminado'], ['frontal', 'Frontal'],
+      ]));
+    }
+
+    if (state.cat === 'lona') {
+      filtersEl.appendChild(buildRow('Tipo', 'tipoLona', [
+        ['front', 'Frontlight'], ['back', 'Backlight'],
+      ]));
+    }
+    // Pastilla y merchandising no llevan filtros: son atributos fijos o solo galería
+  }
+
+  function captionFor(item) {
+    if (item.categoria === 'pastilla') {
+      const partes = [item.medida];
+      if (item.bifaz) partes.push('bifaz');
+      if (item.luminoso) partes.push('luminoso');
+      return partes.filter(Boolean).join(' · ');
+    }
+    if (item.categoria === 'corporea' || item.categoria === 'lona') {
+      return item.titulo;
+    }
+    return item.variante || item.titulo;
+  }
+
+  function renderGrid() {
+    const filtered = data.filter((item) => {
+      if (item.categoria !== state.cat) return false;
+      if (state.material && item.material !== state.material) return false;
+      if (state.iluminacion && item.iluminacion !== state.iluminacion) return false;
+      if (state.tipoLuz && item.tipoLuz !== state.tipoLuz) return false;
+      if (state.tipoLona && item.tipoLona !== state.tipoLona) return false;
+      return true;
+    });
+
+    gridEl.innerHTML = '';
+    emptyEl.hidden = filtered.length > 0;
+
+    filtered.forEach((item) => {
+      const fig = document.createElement('figure');
+      const img = document.createElement('img');
+      img.src = item.imagen;
+      img.alt = item.titulo;
+      img.loading = 'lazy';
+      fig.appendChild(img);
+      const caption = document.createElement('figcaption');
+      caption.textContent = captionFor(item);
+      fig.appendChild(caption);
+      gridEl.appendChild(fig);
+    });
+  }
+
+  function setActiveTab() {
+    allTabs.forEach((t) => t.setAttribute('aria-selected', t.dataset.cat === state.cat ? 'true' : 'false'));
+  }
+
+  allTabs.forEach((tab) => {
+    tab.addEventListener('click', () => {
+      state.cat = tab.dataset.cat;
+      resetVariantFilters();
+      setActiveTab();
+      renderFilters();
+      renderGrid();
+    });
+  });
+
+  setActiveTab();
+  renderFilters();
+  renderGrid();
+</script>

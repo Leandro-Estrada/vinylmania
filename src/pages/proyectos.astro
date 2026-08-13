@@ -1,0 +1,23 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { getCollection } from 'astro:content';
+
+const items = await getCollection('proyectos');
+const proyectos = items
+  .map((i) => i.data)
+  .sort((a, b) => (b.fecha ?? '').localeCompare(a.fecha ?? ''));
+---
+<Layout title="Proyectos">
+  <section class="section">
+    <p class="section-eyebrow">Trabajos realizados</p>
+    <h1 class="section-title">Proyectos</h1>
+
+    <div class="photo-grid">
+      {proyectos.map((p) => (
+        <figure>
+          <img src={p.imagen} alt={p.descripcion ?? 'Proyecto realizado'} loading="lazy" />
+        </figure>
+      ))}
+    </div>
+  </section>
+</Layout>

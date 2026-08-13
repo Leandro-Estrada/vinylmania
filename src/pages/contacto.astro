@@ -1,0 +1,26 @@
+---
+import Layout from '../layouts/Layout.astro';
+const WHATSAPP_NUMBER = '5493436222000'; // TODO: reemplazar por el número real
+---
+<Layout title="Contacto">
+  <section class="section" style="text-align: center; padding-top: 4rem; padding-bottom: 4rem;">
+    <p class="section-eyebrow">Hablemos</p>
+    <h1 class="section-title">Contacto</h1>
+    <p style="color: var(--text-muted); margin-bottom: 32px;">
+      Contanos qué cartel necesitás y te respondemos con opciones y presupuesto.
+    </p>
+    <a
+      class="btn-wa"
+      href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent('Hola, quiero cotizar un cartel.')}`}
+      target="_blank"
+      rel="noopener"
+    >
+      Escribinos por WhatsApp
+    </a>
+    <p style="margin-top: 32px;">
+      <a href="https://www.instagram.com/vinyl.mania/" target="_blank" rel="noopener" style="color: var(--text-muted);">
+        Ver más trabajos en Instagram →
+      </a>
+    </p>
+  </section>
+</Layout>
