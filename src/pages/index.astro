@@ -1,8 +1,30 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import { getCollection } from 'astro:content';
+
+const items = await getCollection('productos');
+const data = items.map((i) => i.data);
+
+// Tomamos la primera foto disponible de cada categoría para ilustrar las cards.
+// Si el cliente carga o borra fotos desde el panel, esto se actualiza solo.
+function firstImage(categoria) {
+  const found = data.find((p) => p.categoria === categoria);
+  return found?.imagen ?? null;
+}
+
+// Foto de fondo del hero: usamos una corpórea si existe (suele ser la más vistosa), si no la primera que haya.
+const heroImage =
+  firstImage('corporea') ?? firstImage('pastilla') ?? firstImage('lona') ?? data[0]?.imagen ?? null;
+
+const categories = [
+  { cat: 'pastilla', title: 'Cartelería pastilla', desc: '3 medidas disponibles', img: firstImage('pastilla') },
+  { cat: 'corporea', title: 'Cartelería corpórea', desc: 'Acrílico, chapa, polifan · con o sin luz', img: firstImage('corporea') },
+  { cat: 'lona', title: 'Cartelería de lona', desc: 'Frontlight y backlight', img: firstImage('lona') },
+  { cat: 'gorras', title: 'Merchandising', desc: 'Gorras, remeras, llaveros y calcomanías', img: firstImage('gorras') },
+];
 ---
 <Layout title="Cartelería a medida">
-  <section class="hero">
+  <section class="hero" style={heroImage ? `background-image: linear-gradient(180deg, rgba(10,10,10,0.55), rgba(10,10,10,0.9)), url(${heroImage}); background-size: cover; background-position: center;` : undefined}>
     <h1>Cartelería que se ve desde la calle</h1>
     <p>Pastilla · Corpórea · Lona — hecha a medida para tu negocio</p>
     <a class="btn-wa" href="/contacto">Consultar por WhatsApp</a>
@@ -11,22 +33,15 @@ import Layout from '../layouts/Layout.astro';
   <section class="section">
     <p class="section-eyebrow">Qué hacemos</p>
     <div class="category-grid">
-      <a class="category-card" href="/productos?cat=pastilla">
-        <h3>Cartelería pastilla</h3>
-        <p>3 medidas disponibles</p>
-      </a>
-      <a class="category-card" href="/productos?cat=corporea">
-        <h3>Cartelería corpórea</h3>
-        <p>Acrílico, chapa, polifan · con o sin luz</p>
-      </a>
-      <a class="category-card" href="/productos?cat=lona">
-        <h3>Cartelería de lona</h3>
-        <p>Frontlight y backlight</p>
-      </a>
-      <a class="category-card" href="/productos?cat=gorras">
-        <h3>Merchandising</h3>
-        <p>Gorras, remeras, llaveros y calcomanías</p>
-      </a>
+      {categories.map((c) => (
+        <a class="category-card" href={`/productos?cat=${c.cat}`}>
+          {c.img && <img src={c.img} alt={c.title} loading="lazy" />}
+          <div class="category-card-body">
+            <h3>{c.title}</h3>
+            <p>{c.desc}</p>
+          </div>
+        </a>
+      ))}
     </div>
   </section>
 </Layout>
