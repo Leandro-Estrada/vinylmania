@@ -12,12 +12,78 @@ const proyectos = items
     <p class="section-eyebrow">Trabajos realizados</p>
     <h1 class="section-title">Proyectos</h1>
 
-    <div class="photo-grid">
-      {proyectos.map((p) => (
-        <figure>
+    <div class="photo-grid" id="proyectos-grid">
+      {proyectos.map((p, i) => (
+        <figure data-index={i} class="lightbox-trigger">
           <img src={p.imagen} alt={p.descripcion ?? 'Proyecto realizado'} loading="lazy" />
         </figure>
       ))}
     </div>
   </section>
+
+  <div id="lightbox" class="lightbox" hidden>
+    <button class="lightbox-close" id="lightbox-close" aria-label="Cerrar">✕</button>
+    <button class="lightbox-nav lightbox-prev" id="lightbox-prev" aria-label="Anterior">‹</button>
+    <img id="lightbox-img" src="" alt="" />
+    <button class="lightbox-nav lightbox-next" id="lightbox-next" aria-label="Siguiente">›</button>
+    <p id="lightbox-caption" class="lightbox-caption"></p>
+  </div>
 </Layout>
+
+<script define:vars={{ proyectos }}>
+  const items = proyectos;
+  let current = 0;
+
+  const lightbox = document.getElementById('lightbox');
+  const lightboxImg = document.getElementById('lightbox-img');
+  const lightboxCaption = document.getElementById('lightbox-caption');
+  const triggers = document.querySelectorAll('.lightbox-trigger');
+
+  function open(index) {
+    current = index;
+    render();
+    lightbox.hidden = false;
+    document.body.style.overflow = 'hidden';
+  }
+
+  function close() {
+    lightbox.hidden = true;
+    document.body.style.overflow = '';
+  }
+
+  function render() {
+    const item = items[current];
+    lightboxImg.src = item.imagen;
+    lightboxImg.alt = item.descripcion ?? 'Proyecto realizado';
+    lightboxCaption.textContent = item.descripcion ?? '';
+  }
+
+  function next() {
+    current = (current + 1) % items.length;
+    render();
+  }
+
+  function prev() {
+    current = (current - 1 + items.length) % items.length;
+    render();
+  }
+
+  triggers.forEach((el) => {
+    el.addEventListener('click', () => open(Number(el.dataset.index)));
+  });
+
+  document.getElementById('lightbox-close').addEventListener('click', close);
+  document.getElementById('lightbox-next').addEventListener('click', next);
+  document.getElementById('lightbox-prev').addEventListener('click', prev);
+
+  lightbox.addEventListener('click', (e) => {
+    if (e.target === lightbox) close();
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (lightbox.hidden) return;
+    if (e.key === 'Escape') close();
+    if (e.key === 'ArrowRight') next();
+    if (e.key === 'ArrowLeft') prev();
+  });
+</script>
